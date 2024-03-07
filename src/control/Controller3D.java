@@ -48,8 +48,8 @@ public class Controller3D implements Controller {
 //        zBuffer.setPixelWithZTest(10, 10, 0.7, new Col(0x00ff00));
 
         triangleRasterizer.rasterize(
-                new Vertex(new Point3D(400, 0, 0.5), new Col(0xff0000)),
-                new Vertex(new Point3D(0, 300, 0.5), new Col(0x00ff00)),
+                new Vertex(new Point3D(0, 300, 0.5), new Col(0xff0000)),
+                new Vertex(new Point3D(400, 0, 0.5), new Col(0x00ff00)),
                 new Vertex(new Point3D(799, 599, 0.5), new Col(0x0000ff))
         );
 
