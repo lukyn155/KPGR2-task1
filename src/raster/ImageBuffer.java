@@ -56,9 +56,4 @@ public class ImageBuffer implements Raster<Col> {
         return img.getHeight();
     }
 
-    // FIXME: smazat - debug účely
-    public BufferedImage getImg() {
-        return img;
-    }
 }
-
