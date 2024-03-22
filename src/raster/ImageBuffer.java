@@ -26,12 +26,18 @@ public class ImageBuffer implements Raster<Col> {
 
     @Override
     public Col getValue(int x, int y) {
-        return new Col(img.getRGB(x, y));
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            return new Col(img.getRGB(x, y));
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void setValue(int x, int y, Col color) {
-        img.setRGB(x, y, color.getRGB());
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            img.setRGB(x, y, color.getRGB());
+        }
     }
 
     @Override

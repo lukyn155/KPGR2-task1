@@ -1,46 +1,56 @@
 package raster;
 
+import java.util.Arrays;
+
 public class DepthBuffer implements Raster<Double> {
     private final double[][] buffer;
     private final int width, height;
+    private double defaultValue;
 
 
     public DepthBuffer(int width, int height) {
         this.width = width;
         this.height = height;
         this.buffer = new double[width][height];
+        setDefaultValue(1.d);
+        clear();
     }
 
     @Override
     public void clear() {
-        // TODO:
+        for (double[] d : buffer) {
+            Arrays.fill(d, defaultValue);
+        }
     }
 
     @Override
     public void setDefaultValue(Double value) {
-        // TODO:
+        this.defaultValue = value;
     }
 
     @Override
     public int getWidth() {
-        // TODO:
-        return 0;
+        return width;
     }
 
     @Override
     public int getHeight() {
-        // TODO:
-        return 0;
+        return height;
     }
 
     @Override
     public Double getValue(int x, int y) {
-        // TODO:
-        return null;
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            return buffer[x][y];
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void setValue(int x, int y, Double value) {
-        // TODO:
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            buffer[x][y] = value;
+        }
     }
 }
