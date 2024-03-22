@@ -5,9 +5,7 @@ import raster.Raster;
 import raster.TriangleRasterizer;
 import raster.ZBuffer;
 import solid.Vertex;
-import transforms.Col;
-import transforms.Point3D;
-import transforms.Vec2D;
+import transforms.*;
 import view.Panel;
 
 import javax.imageio.ImageIO;
@@ -22,6 +20,9 @@ public class Controller3D implements Controller {
     private TriangleRasterizer triangleRasterizer;
     private BufferedImage texture;
 
+    private Mat4 model, projection;
+    private Camera camera;
+
     public Controller3D(Panel panel) {
         this.panel = panel;
         initObjects(panel.getRaster());
@@ -34,6 +35,21 @@ public class Controller3D implements Controller {
 
         zBuffer = new ZBuffer((ImageBuffer) raster);
         triangleRasterizer = new TriangleRasterizer(zBuffer);
+
+        model = new Mat4Identity();
+
+        Vec3D e = new Vec3D(1, -5, 2);
+        camera = new Camera()
+                .withPosition(e)
+                .withAzimuth(Math.toRadians(90))
+                .withZenith(Math.toRadians(-15));
+
+        projection = new Mat4PerspRH(
+            Math.PI / 3,
+            raster.getHeight() / (float) raster.getWidth(),
+            0.5,
+            50
+        );
     }
 
     @Override

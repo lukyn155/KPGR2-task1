@@ -1,11 +1,24 @@
 package solid;
 
+import transforms.Mat4;
+import transforms.Mat4Identity;
+
 import java.util.ArrayList;
 
 public abstract class Solid {
     protected  final ArrayList<Part> partBuffer = new ArrayList<>();
     protected  final ArrayList<Vertex> vertexBuffer = new ArrayList<>();
     protected  final ArrayList<Integer> indexBuffer = new ArrayList<>();
+
+    private Mat4 model = new Mat4Identity();
+
+    public void setModel(Mat4 model) {
+        this.model = model;
+    }
+
+    public Mat4 getModel() {
+        return model;
+    }
 
     public ArrayList<Part> getPartBuffer() {
         return partBuffer;
