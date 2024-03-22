@@ -78,28 +78,53 @@ public class Renderer3D {
 
 
         // TODO: sežadit vrcholy podle z, aby aZ = max
+        if (nA.getPosition().getZ() < nB.getPosition().getZ()) {
+            Vertex tmp = nA;
+            nA = nB;
+            nB = tmp;
+        }
+
+        if (nB.getPosition().getZ() < nC.getPosition().getZ()) {
+            Vertex tmp = nB;
+            nB = nC;
+            nC = tmp;
+        }
+
+        if (nA.getPosition().getZ() < nB.getPosition().getZ()) {
+            Vertex tmp = nA;
+            nA = nB;
+            nB = tmp;
+        }
 
         double zMin = 0;
 
-        if(a.getPosition().getZ() < zMin)
+        if(nA.getPosition().getZ() < zMin)
             return;
 
-        if(b.getPosition().getZ() < zMin) {
-            double tv1 = (zMin - a.getPosition().getZ()) / (b.getPosition().getZ() - a.getPosition().getZ());
-            Vertex v1 = a.mul(1 - tv1).add(b.mul(tv1));
+        if(nB.getPosition().getZ() < zMin) {
+            double tv1 = (zMin - nB.getPosition().getZ()) / (nB.getPosition().getZ() - nA.getPosition().getZ());
+            Vertex v1 = nA.mul(1 - tv1).add(nB.mul(tv1));
 
-            double tv2 = (zMin - a.getPosition().getZ()) / (c.getPosition().getZ() - a.getPosition().getZ());
-            Vertex v2 = a.mul(1 - tv2).add(c.mul(tv2));
+            double tv2 = (zMin - nA.getPosition().getZ()) / (nC.getPosition().getZ() - nA.getPosition().getZ());
+            Vertex v2 = nA.mul(1 - tv2).add(nC.mul(tv2));
 
-            triangleRasterizer.rasterize(a, v1, v2);
+            triangleRasterizer.rasterize(nA, v1, v2);
             return;
         }
 
-        if(c.getPosition().getZ() < zMin) {
-            // TODO: implementovat
+        if(nC.getPosition().getZ() < zMin) {
+            double tv1 = -nA.getPosition().getZ() / (nC.getPosition().getZ() - nA.getPosition().getZ());
+            Vertex v1 = nA.mul(1 - tv1).add(nC.mul(tv1));
+
+            double tv2 = -nB.getPosition().getZ() / (nC.getPosition().getZ() - nB.getPosition().getZ());
+            Vertex v2 = nB.mul(1 - tv2).add(nC.mul(tv1));
+
+            triangleRasterizer.rasterize(nA, nB, v2);
+            triangleRasterizer.rasterize(nA, v1, v2);
+            return;
         }
 
-        triangleRasterizer.rasterize(a, b, c);
+        triangleRasterizer.rasterize(nA, nB, nC);
     }
 
     // TODO: metoda render pro seznam solidů

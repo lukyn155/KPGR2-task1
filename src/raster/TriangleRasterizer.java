@@ -7,6 +7,7 @@ import transforms.Point3D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Optional;
 
 public class TriangleRasterizer {
     private final ZBuffer zBuffer;
@@ -16,10 +17,13 @@ public class TriangleRasterizer {
     }
 
     public void rasterize(Vertex a, Vertex b, Vertex c) {
+        Optional<Vertex> dA = a.dehomog();
+        Optional<Vertex> dB = b.dehomog();
+        Optional<Vertex> dC = c.dehomog();
         ArrayList<Vertex> vertexList = new ArrayList<>();
-        vertexList.add(a);
-        vertexList.add(b);
-        vertexList.add(c);
+        vertexList.add(dA.get());
+        vertexList.add(dB.get());
+        vertexList.add(dC.get());
         vertexList.sort(Comparator.comparingDouble(c2 -> c2.getPosition().getY()));
 
         for (int i = 0; i < vertexList.size(); i++) {
