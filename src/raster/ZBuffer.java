@@ -12,13 +12,26 @@ public class ZBuffer {
     }
 
     public void setPixelWithZTest(int x, int y, double z, Col color) {
-        // TODO: implementovat
-        // načtu hiodnotu z depth bufferu
-        // provonám načtenou hodnotou s hodnotou Z, která vstupuje do metody
-        // vyhodnotím podmínku
-        // podle podmínky, buď:
-        // a) skončit - nic se nestane
-        // b) obarvím, upravím hodnotu v depth bufferu
-        imageBuffer.setValue(x, y, color);
+        // Validace Z hodnoty
+        if (z >= 0 && z <= 1) {
+            // načtu hiodnotu z depth bufferu
+            // provonám načtenou hodnotou s hodnotou Z, která vstupuje do metody
+            if (depthBuffer.getValue(x, y) != null && depthBuffer.getValue(x, y) > z) {
+                depthBuffer.setValue(x, y, z);
+                imageBuffer.setValue(x, y, color);
+            }
+        }
+    }
+
+    public void setDefault() {
+        depthBuffer.clear();
+    }
+
+    public int getWindowWidth() {
+        return imageBuffer.getWidth();
+    }
+
+    public int getWindowHeight() {
+        return imageBuffer.getWidth();
     }
 }
