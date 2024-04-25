@@ -3,91 +3,135 @@ package raster;
 import solid.Vertex;
 import transforms.Col;
 import transforms.Point3D;
+import transforms.Vec3D;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Optional;
 
-public class TriangleRasterizer {
-    private final ZBuffer zBuffer;
-
+public class TriangleRasterizer extends Rasterizer {
     public TriangleRasterizer(ZBuffer zBuffer) {
-        this.zBuffer = zBuffer;
+        super(zBuffer);
     }
 
+    @Override
     public void rasterize(Vertex a, Vertex b, Vertex c) {
+        // Dehomogenizace
         Optional<Vertex> dA = a.dehomog();
         Optional<Vertex> dB = b.dehomog();
         Optional<Vertex> dC = c.dehomog();
-        ArrayList<Vertex> vertexList = new ArrayList<>();
-        vertexList.add(dA.get());
-        vertexList.add(dB.get());
-        vertexList.add(dC.get());
-        vertexList.sort(Comparator.comparingDouble(c2 -> c2.getPosition().getY()));
 
-        for (int i = 0; i < vertexList.size(); i++) {
-            System.out.println(vertexList.get(i).getPosition().getY());
+        // Transformace do okna
+        Vec3D vec3D1 = transformToWindow(dA.get().getPosition());
+        a = new Vertex(new Point3D(vec3D1), dA.get().getColor());
+
+        Vec3D vec3D2 = transformToWindow(dB.get().getPosition());
+        b = new Vertex(new Point3D(vec3D2), dB.get().getColor());
+
+        Vec3D vec3D3 = transformToWindow(dC.get().getPosition());
+        c = new Vertex(new Point3D(vec3D3), dC.get().getColor());
+
+        // Seřazení podle Y
+        if (a.getPosition().getY() > b.getPosition().getY()) {
+            Vertex temp = a;
+            a = b;
+            b = temp;
+        }
+        if (b.getPosition().getY() > c.getPosition().getY()) {
+            Vertex temp = b;
+            b = c;
+            c = temp;
+        }
+        if (a.getPosition().getY() > b.getPosition().getY()) {
+            Vertex temp = a;
+            a = b;
+            b = temp;
         }
 
-        int aX = (int) Math.round(vertexList.get(0).getPosition().getX());
-        int aY = (int) Math.round(vertexList.get(0).getPosition().getY());
-        double aZ = a.getPosition().getZ();
+        int aX = (int) Math.round(a.getPosition().getX());
+        int aY = (int) Math.round(a.getPosition().getY());
 
-        int bX = (int) Math.round(vertexList.get(1).getPosition().getX());
-        int bY = (int) Math.round(vertexList.get(1).getPosition().getY());
-        double bZ = b.getPosition().getZ();
+        int bX = (int) Math.round(b.getPosition().getX());
+        int bY = (int) Math.round(b.getPosition().getY());
 
-        int cX = (int) Math.round(vertexList.get(2).getPosition().getX());
-        int cY = (int) Math.round(vertexList.get(2).getPosition().getY());
-        double cZ = c.getPosition().getZ();
+        int cX = (int) Math.round(c.getPosition().getX());
+        int cY = (int) Math.round(c.getPosition().getY());
 
-        // TODO. seřadit vrcholy podle y
-
-        for (int y = aY; y <= bY; y++) {
-            double tAB = (y - aY) / (double)(bY - aY);
-            int xAB = (int) Math.round ((1 - tAB) * aX + tAB * bX);
-            // TODO: zAB
+        int yStart = Math.max(0, (int) a.getPosition().getY() + 1);
+        double yEnd = Math.min(zBuffer.getWindowHeight() - 1, b.getPosition().getY());
+        for (int y = yStart; y <= yEnd; y++) {
+            double tAB = (y - aY) / (double) (bY - aY);
+            int xAB = (int) Math.round((1 - tAB) * aX + tAB * bX);
             Vertex vAB = a.mul(1 - tAB).add(b.mul(tAB));
-            // Vertex vAB = lerp.lerp(a, b, tAB);
 
-            double tAC = (y - aY) / (double)(cY - aY);
-            int xAC = (int) Math.round ((1 - tAC) * aX + tAC * cX);
+            double tAC = (y - aY) / (double) (cY - aY);
+            int xAC = (int) Math.round((1 - tAC) * aX + tAC * cX);
             Vertex vAC = a.mul(1 - tAC).add(c.mul(tAC));
-            // TODO: zAC
 
-            // TODO: xAB musí být menší než xAC
-            for (int x = xAB; x <= xAC; x++) {
+            if (xAB > xAC) {
+                int tmp = xAB;
+                xAB = xAC;
+                xAC = tmp;
+
+                Vertex vTmp = vAB;
+                vAB = vAC;
+                vAC = vTmp;
+            }
+
+            int xStart = Math.max(0, (int) vAB.getPosition().getX() + 1);
+            double xEnd = Math.min(zBuffer.getWindowWidth() - 1, vAC.getPosition().getX());
+
+            //xAB musí být menší než xAC
+            for (int x = xStart; x <= xEnd; x++) {
                 double t = (x - xAB) / (double) (xAC - xAB);
                 Vertex pixel = vAB.mul(1 - t).add(vAC.mul(t));
-
-                // TODO: nový interpolační koef. -> počítám z xAB a xAC
-                // TODO: spočítám z
-                zBuffer.setPixelWithZTest(x, y, 0.5, pixel.getColor());
+                zBuffer.setPixelWithZTest(x, y, pixel.getPosition().getZ(), pixel.getColor());
             }
+
         }
 
+        yStart = Math.max(0, (int) b.getPosition().getY() + 1);
+        yEnd = Math.min(zBuffer.getWindowHeight() - 1, c.getPosition().getY());
         //Cyklus od B do C (druhá část)
-        for (int y = bY; y <= cY; y++) {
+        for (int y = yStart; y <= yEnd; y++) {
             // V1
-            double tBC = (y - bY) / (double)(cY - bY);
-            int xBC = (int) Math.round ((1 - tBC) * bX + tBC * cX);
+            double tBC = (y - bY) / (double) (cY - bY);
+            int xBC = (int) Math.round((1 - tBC) * bX + tBC * cX);
             Vertex vBC = b.mul(1 - tBC).add(c.mul(tBC));
 
             // V2
-            double tAC = (y - aY) / (double)(cY - aY);
-            int xAC = (int) Math.round ((1 - tAC) * aX + tAC * cX);
+            double tAC = (y - aY) / (double) (cY - aY);
+            int xAC = (int) Math.round((1 - tAC) * aX + tAC * cX);
             Vertex vAC = a.mul(1 - tAC).add(c.mul(tAC));
 
             //Kontrola, jestli x1 < x2
-            for (int x = xBC; x <= xAC; x++) {
+            if (xBC > xAC) {
+                int tmp = xBC;
+                xBC = xAC;
+                xAC = tmp;
+
+                Vertex vTmp = vBC;
+                vBC = vAC;
+                vAC = vTmp;
+            }
+
+            int xStart = Math.max(0, (int) vBC.getPosition().getX() + 1);
+            double xEnd = Math.min(zBuffer.getWindowWidth() - 1, vAC.getPosition().getX());
+
+            //xAB musí být menší než xAC
+            for (int x = xStart; x <= xEnd; x++) {
                 double t = (x - xBC) / (double) (xAC - xBC);
                 Vertex pixel = vBC.mul(1 - t).add(vAC.mul(t));
-
-                // TODO: nový interpolační koef. -> počítám z xAB a xAC
-                // TODO: spočítám z
-                zBuffer.setPixelWithZTest(x, y, 0.5, pixel.getColor());
+                zBuffer.setPixelWithZTest(x, y, pixel.getPosition().getZ(), pixel.getColor());
             }
         }
+
+//        }
+    }
+
+    public void setWired(boolean wired) {
+        isWired = wired;
+    }
+
+    public boolean getWired() {
+        return isWired;
     }
 }
