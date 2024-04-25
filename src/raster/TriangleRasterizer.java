@@ -123,15 +123,5 @@ public class TriangleRasterizer extends Rasterizer {
                 zBuffer.setPixelWithZTest(x, y, pixel.getPosition().getZ(), pixel.getColor());
             }
         }
-
-//        }
-    }
-
-    public void setWired(boolean wired) {
-        isWired = wired;
-    }
-
-    public boolean getWired() {
-        return isWired;
     }
 }

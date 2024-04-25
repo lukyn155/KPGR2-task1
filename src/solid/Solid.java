@@ -4,6 +4,7 @@ import transforms.Mat4;
 import transforms.Mat4Identity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public abstract class Solid {
     protected  final ArrayList<Part> partBuffer = new ArrayList<>();
@@ -16,6 +17,9 @@ public abstract class Solid {
         this.model = model;
     }
 
+    protected void addIndices(Integer... indices) {
+        indexBuffer.addAll(Arrays.asList(indices));
+    }
     public Mat4 getModel() {
         return model;
     }

@@ -119,10 +119,8 @@ public class LineRasterizerTrivial extends Rasterizer {
         // Inicializujeme proměnné pro průchod přímkou
         double x = a.getPosition().getX(), y = a.getPosition().getY(), z = a.getPosition().getZ();
 
-//        System.out.println("X: " + x + " Y: " + y + " Z: " + z + " Steps: " + steps);
         // Projdeme přímkou a vykreslíme pixely, pokud jsou blíže než stávající pixel v z-bufferu
         for (int i = 0; i <= steps; i++) {
-//            System.out.println("X: " + x + " Y: " + y + " Z: " + z);
             int xi = (int) Math.round(x);
             int yi = (int) Math.round(y);
 
