@@ -2,15 +2,14 @@ package control;
 
 import raster.*;
 import render.Renderer3D;
-import solid.Minecraft;
-import solid.Pyramid;
-import solid.Solid;
+import solid.*;
 import transforms.*;
 import view.Panel;
 
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Controller3D implements Controller {
     private final Panel panel;
@@ -25,6 +24,8 @@ public class Controller3D implements Controller {
     private Camera camera;
 
     private Solid pyramid;
+    private Solid pyramid2;
+    private Solid cube;
     private Solid minecraft;
 
     private int firstX;
@@ -39,6 +40,10 @@ public class Controller3D implements Controller {
     int pY = -2;
     double pZ = 0.3;
     final double step = 0.25;
+
+    ArrayList<Solid> solids = new ArrayList<>();
+    int activeSolidIndex = 0;
+    Solid activeSolid;
 
     private String projType = "persp";
 
@@ -57,21 +62,6 @@ public class Controller3D implements Controller {
         lineRasterizerTrivial = new LineRasterizerTrivial(zBuffer);
         renderer3D = new Renderer3D(triangleRasterizer, lineRasterizerTrivial);
 
-//        model = new Mat4Identity();
-//
-//        Vec3D e = new Vec3D(1, -5, -1);
-//        camera = new Camera()
-//                .withPosition(e)
-//                .withAzimuth(Math.toRadians(90))
-//                .withZenith(Math.toRadians(0));
-//
-//        projection = new Mat4PerspRH(
-//            Math.PI / 3,
-//            raster.getHeight() / (float) raster.getWidth(),
-//            0.5,
-//            50
-//        );
-
         camera = new Camera(
                 new Vec3D(pX, pY, pZ),
                 Math.toRadians(azimut),
@@ -86,6 +76,35 @@ public class Controller3D implements Controller {
                 0.1,
                 20
         );
+
+        Mat4 matTrans = new Mat4Identity();
+        matTrans = matTrans.mul(new Mat4RotZ(45));
+
+        Mat4 matTrans2 = new Mat4Identity();
+        matTrans2 = matTrans2.mul(new Mat4Transl(1, 0, 0));
+
+        Mat4 matTrans3 = new Mat4Identity();
+        matTrans3 = matTrans3.mul(new Mat4Scale(0.5)).mul(new Mat4Transl(0.5, 0, 0.5));
+
+        Mat4 matTrans4 = new Mat4Identity();
+        matTrans4 = matTrans4.mul(new Mat4RotZ(45)).mul(new Mat4Scale(0.5)).mul(new Mat4Transl(-0.3, 0, 0));
+
+        pyramid = new Pyramid();
+        pyramid.setModel(matTrans);
+
+        pyramid2 = new Pyramid();
+        pyramid2.setModel(matTrans3);
+
+        minecraft = new Minecraft();
+        minecraft.setModel(matTrans2);
+
+        cube = new Cube();
+        cube.setModel(matTrans4);
+
+        solids.add(pyramid);
+        solids.add(pyramid2);
+        solids.add(cube);
+        activeSolid = solids.get(activeSolidIndex);
     }
 
     @Override
@@ -206,6 +225,40 @@ public class Controller3D implements Controller {
                     camera = camera.down(step);
                 } else if (e.getKeyCode() == KeyEvent.VK_M) {
                     renderer3D.changeRasterizer();
+                } else if (e.getKeyCode() == KeyEvent.VK_N) {
+                    if (activeSolidIndex == solids.size() - 1) {
+                        activeSolidIndex = 0;
+                    } else {
+                        activeSolidIndex++;
+                    }
+                    activeSolid = solids.get(activeSolidIndex);
+                } else if (e.getKeyCode() == KeyEvent.VK_Q) {
+                    Mat4 activeMat = activeSolid.getModel();
+                    Mat4 newMat = activeMat.inverse().get();
+                    activeSolid.setModel(activeMat.mul(newMat).mul(new Mat4RotY(-0.5)).mul(activeMat));
+                } else if (e.getKeyCode() == KeyEvent.VK_E) {
+                    Mat4 activeMat = activeSolid.getModel();
+                    Mat4 newMat = activeMat.inverse().get();
+                    activeSolid.setModel(activeMat.mul(newMat).mul(new Mat4RotY(0.5)).mul(activeMat));
+//                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4RotY(0.5)));
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Transl(0, 0, 0.5)));
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Transl(0, 0, -0.5)));
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Transl(0.5, 0, 0)));
+                } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Transl(-0.5, 0, 0)));
+                } else if (e.getKeyCode() == KeyEvent.VK_B) {
+                    Mat4 activeMat = activeSolid.getModel();
+                    Mat4 newMat = activeMat.inverse().get();
+                    activeSolid.setModel(activeMat.mul(newMat).mul(new Mat4Scale(1.5)).mul(activeMat));
+//                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Scale(1.5)));
+                } else if (e.getKeyCode() == KeyEvent.VK_V) {
+                    Mat4 activeMat = activeSolid.getModel();
+                    Mat4 newMat = activeMat.inverse().get();
+                    activeSolid.setModel(activeMat.mul(newMat).mul(new Mat4Scale(0.5)).mul(activeMat));
+//                    activeSolid.setModel(activeSolid.getModel().mul(new Mat4Scale(0.5)));
                 }
                 redraw();
             }
@@ -221,19 +274,17 @@ public class Controller3D implements Controller {
         camera = camera.withAzimuth(Math.toRadians(azimut)).withZenith(Math.toRadians(zenit));
         renderer3D.setView(camera.getViewMatrix());
 
-        Mat4 matTrans = new Mat4Identity();
-        matTrans = matTrans.mul(new Mat4RotZ(45));
+        renderer3D.render(solids);
 
-        Mat4 matTrans2 = new Mat4Identity();
-        matTrans2 = matTrans.mul(new Mat4Transl(1, 0, 0));
+        Point3D[] points = new Point3D[]{
+                new Point3D(0,0,0), new Point3D(0.25,0.5,0.1), new Point3D(0.5,0.8,0.2), new Point3D(0.75,0.5,0.1),
+                new Point3D(1,0,0), new Point3D(0.25,0.5,0.5), new Point3D(0.5,0.8,0.7), new Point3D(0.75,0.5,0.5),
+                new Point3D(0,1,0), new Point3D(0.25,0.5,0.1), new Point3D(0.5,0.8,0.2), new Point3D(0.75,0.5,0.1),
+                new Point3D(0,0,0), new Point3D(0.25,0.5,0.5), new Point3D(0.5,0.8,0.7), new Point3D(0.75,0.5,0.5),
+        };
 
-        pyramid = new Pyramid();
-        pyramid.setModel(matTrans);
-
-        minecraft = new Minecraft();
-        minecraft.setModel(matTrans2);
-
-        renderer3D.render(pyramid);
+        Solid bezierBicubic = new Surface(Cubic.COONS, points);
+        renderer3D.render(bezierBicubic);
         renderer3D.render(minecraft);
 
         panel.repaint();

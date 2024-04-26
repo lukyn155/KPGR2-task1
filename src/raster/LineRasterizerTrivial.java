@@ -58,7 +58,7 @@ public class LineRasterizerTrivial extends Rasterizer {
             // Posuneme se na další bod na přímce
             x -= xIncrement;
             y -= yIncrement;
-            z += zIncrement;
+            z -= zIncrement;
         }
     }
 
@@ -130,7 +130,7 @@ public class LineRasterizerTrivial extends Rasterizer {
             // Posuneme se na další bod na přímce
             x -= xIncrement;
             y -= yIncrement;
-            z += zIncrement;
+            z -= zIncrement;
         }
 
         // Určíme, která osa je hlavní (ta s největším rozdílem)
@@ -156,7 +156,7 @@ public class LineRasterizerTrivial extends Rasterizer {
             // Posuneme se na další bod na přímce
             x -= xIncrement;
             y -= yIncrement;
-            z += zIncrement;
+            z -= zIncrement;
         }
 
         // Určíme, která osa je hlavní (ta s největším rozdílem)
@@ -182,7 +182,7 @@ public class LineRasterizerTrivial extends Rasterizer {
             // Posuneme se na další bod na přímce
             x -= xIncrement;
             y -= yIncrement;
-            z += zIncrement;
+            z -= zIncrement;
         }
     }
 }

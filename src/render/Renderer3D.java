@@ -22,7 +22,7 @@ public class Renderer3D {
 
     private Rasterizer rasterizer;
 
-    private boolean isWired = false;
+    private boolean isWired = true;
 
     public Renderer3D(TriangleRasterizer triangleRasterizer, LineRasterizerTrivial lineRasterizer) {
         this.rasterizer = triangleRasterizer;
@@ -47,7 +47,6 @@ public class Renderer3D {
     }
 
     public void render(Solid solid) {
-        // TODO: transformace
         matTransformation = solid.getModel().mul(view).mul(projection);
 
         for (Part part : solid.getPartBuffer()) {
