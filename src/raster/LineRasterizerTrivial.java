@@ -1,5 +1,6 @@
 package raster;
 
+import shader.Shader;
 import solid.Vertex;
 import transforms.Col;
 import transforms.Point3D;
@@ -63,7 +64,7 @@ public class LineRasterizerTrivial extends Rasterizer {
     }
 
     @Override
-    public void rasterize(Vertex a, Vertex b, Vertex c) {
+    public void rasterize(Vertex a, Vertex b, Vertex c, Shader shader) {
         // Dehomogenizace
         Optional<Vertex> dA = a.dehomog();
         Optional<Vertex> dB = b.dehomog();

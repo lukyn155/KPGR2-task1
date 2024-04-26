@@ -1,5 +1,7 @@
 package solid;
 
+import shader.Shader;
+import shader.ShaderInterpolated;
 import transforms.Mat4;
 import transforms.Mat4Identity;
 
@@ -11,6 +13,7 @@ public abstract class Solid {
     protected  final ArrayList<Vertex> vertexBuffer = new ArrayList<>();
     protected  final ArrayList<Integer> indexBuffer = new ArrayList<>();
 
+    protected Shader shader = new ShaderInterpolated();
     private Mat4 model = new Mat4Identity();
 
     public void setModel(Mat4 model) {
@@ -34,5 +37,12 @@ public abstract class Solid {
 
     public ArrayList<Integer> getIndexBuffer() {
         return indexBuffer;
+    }
+
+    public Shader getShader() {
+        return shader;
+    }
+    public void setShader(Shader shader) {
+        this.shader = shader;
     }
 }

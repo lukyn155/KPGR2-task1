@@ -2,13 +2,13 @@ package control;
 
 import raster.*;
 import render.Renderer3D;
+import shader.ShaderTexture;
 import solid.*;
 import transforms.*;
 import view.Panel;
 
 import javax.swing.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Controller3D implements Controller {
@@ -18,7 +18,6 @@ public class Controller3D implements Controller {
     private ZBuffer zBuffer;
     private TriangleRasterizer triangleRasterizer;
     private LineRasterizerTrivial lineRasterizerTrivial;
-    private BufferedImage texture;
 
     private Mat4 model, projection;
     private Camera camera;
@@ -99,10 +98,11 @@ public class Controller3D implements Controller {
         minecraft.setModel(matTrans2);
 
         cube = new Cube();
+        cube.setShader(new ShaderTexture());
         cube.setModel(matTrans4);
 
-        solids.add(pyramid);
-        solids.add(pyramid2);
+//        solids.add(pyramid);
+//        solids.add(pyramid2);
         solids.add(cube);
         activeSolid = solids.get(activeSolidIndex);
     }
@@ -284,8 +284,8 @@ public class Controller3D implements Controller {
         };
 
         Solid bezierBicubic = new Surface(Cubic.COONS, points);
-        renderer3D.render(bezierBicubic);
-        renderer3D.render(minecraft);
+//        renderer3D.render(bezierBicubic);
+//        renderer3D.render(minecraft);
 
         panel.repaint();
     }

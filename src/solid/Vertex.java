@@ -12,10 +12,6 @@ public class Vertex implements Vectorizable<Vertex> {
     private final Col color;
     private Vec2D uv;
 
-    // TODO: další atributy
-
-    // TODO: double one
-
     public Vertex(Point3D position, Col color) {
         this.position = position;
         this.color = color;
@@ -52,10 +48,14 @@ public class Vertex implements Vectorizable<Vertex> {
 
     public Optional<Vertex> dehomog() {
         Optional<Vec3D> optional = position.dehomog();
-        return optional.map(vec3D -> new Vertex(new Point3D(vec3D), color));
+        return optional.map(vec3D -> new Vertex(new Point3D(vec3D), color, uv));
     }
 
     public Vec2D getUv() {
         return uv;
+    }
+
+    public void setUv(Vec2D uv) {
+        this.uv = uv;
     }
 }

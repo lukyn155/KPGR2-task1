@@ -3,6 +3,7 @@ package render;
 import raster.LineRasterizerTrivial;
 import raster.Rasterizer;
 import raster.TriangleRasterizer;
+import shader.Shader;
 import solid.Part;
 import solid.Solid;
 import solid.Vertex;
@@ -74,14 +75,14 @@ public class Renderer3D {
                         Vertex a = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexA));
                         Vertex b = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexB));
                         Vertex c = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexC));
-                        clipTriangle(a, b, c);
+                        clipTriangle(a, b, c, solid.getShader());
                     }
                     break;
             }
         }
     }
 
-    private void clipTriangle(Vertex a, Vertex b, Vertex c) {
+    private void clipTriangle(Vertex a, Vertex b, Vertex c, Shader shader) {
         //Trasformace až do projekce
         Vertex nA = new Vertex(a.getPosition().mul(matTransformation), a.getColor(), a.getUv());
         Vertex nB = new Vertex(b.getPosition().mul(matTransformation), b.getColor(), b.getUv());
@@ -129,7 +130,7 @@ public class Renderer3D {
             Vertex v2 = nA.mul(1 - tv2).add(nC.mul(tv2));
 
             //triangleRasterizer.rasterize(nA, v1, v2);
-            rasterizer.rasterize(nA, v1, v2);
+            rasterizer.rasterize(nA, v1, v2, shader);
             return;
         }
 
@@ -142,13 +143,13 @@ public class Renderer3D {
 
 //            triangleRasterizer.rasterize(nA, nB, v2);
 //            triangleRasterizer.rasterize(nA, v1, v2);
-            rasterizer.rasterize(nA, nB, v2);
-            rasterizer.rasterize(nA, v1, v2);
+            rasterizer.rasterize(nA, nB, v2, shader);
+            rasterizer.rasterize(nA, v1, v2, shader);
             return;
         }
 
 //        triangleRasterizer.rasterize(nA, nB, nC);
-        rasterizer.rasterize(nA, nB, nC);
+        rasterizer.rasterize(nA, nB, nC, shader);
     }
 
     private void clipLine(Vertex a, Vertex b) {
