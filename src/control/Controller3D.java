@@ -101,8 +101,8 @@ public class Controller3D implements Controller {
         cube.setShader(new ShaderTexture());
         cube.setModel(matTrans4);
 
-//        solids.add(pyramid);
-//        solids.add(pyramid2);
+        solids.add(pyramid);
+        solids.add(pyramid2);
         solids.add(cube);
         activeSolid = solids.get(activeSolidIndex);
     }
@@ -284,8 +284,8 @@ public class Controller3D implements Controller {
         };
 
         Solid bezierBicubic = new Surface(Cubic.COONS, points);
-//        renderer3D.render(bezierBicubic);
-//        renderer3D.render(minecraft);
+        renderer3D.render(bezierBicubic);
+        renderer3D.render(minecraft);
 
         panel.repaint();
     }
